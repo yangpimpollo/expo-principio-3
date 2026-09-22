@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Principio 3 · Entrega frecuente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f3eee4;
+    --ink: #17150f;
+    --muted: #6f675a;
+    --rule: #cfc5b3;
+    --red: #d1361f;
+    --serif: "Fraunces", "Georgia", "Times New Roman", serif;
+    --mono: "IBM Plex Mono", "Consolas", "Courier New", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--paper); color: var(--ink); overflow: hidden; }
+  body { font-family: var(--serif); font-weight: 300; line-height: 1.2; }
+
+  /* ---------- marco de cada lámina ---------- */
+  .slide {
+    position: absolute; inset: 0;
+    display: grid; grid-template-rows: auto 1fr auto;
+    padding: 3.2vmin 4.5vw 2.6vmin;
+    opacity: 0; transition: opacity .35s ease; pointer-events: none;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+  .slide { overflow: hidden; }
+  .body { min-height: 0; }
+  .top, .bottom {
+    font-family: var(--mono); font-size: clamp(.65rem, 1.5vmin, 1rem); letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); display: flex; justify-content: space-between; align-items: center;
+  }
+  .top { border-bottom: 2px solid var(--ink); padding-bottom: 1.4vmin; }
+  .bottom { border-top: 1px solid var(--rule); padding-top: 1.4vmin; }
+  .top .n { color: var(--red); font-weight: 600; }
+  .body { display: grid; min-height: 0; padding: 3vmin 0; }
+
+  .kicker { font-family: var(--mono); font-size: clamp(.7rem, 1.7vmin, 1.1rem); letter-spacing: .18em; text-transform: uppercase; color: var(--red); font-weight: 600; }
+  .display { font-weight: 900; letter-spacing: -.03em; line-height: .95; font-variation-settings: "opsz" 144; }
+  .h-xl { font-size: clamp(2.6rem, 10vmin, 8.5rem); }
+  .h-l  { font-size: clamp(2rem, 7vmin, 6rem); }
+  .h-m  { font-size: clamp(1.4rem, 4.2vmin, 3.4rem); font-weight: 600; letter-spacing: -.02em; line-height: 1.1; }
+  .lead { font-size: clamp(1rem, 2.6vmin, 2rem); color: var(--muted); font-style: italic; }
+  .red { color: var(--red); }
+
+  /* fragmentos (aparecen con →) */
+  .frag { opacity: 0; transform: translateY(1.2vmin); transition: opacity .4s ease, transform .4s ease; }
+  .frag.on { opacity: 1; transform: none; }
+
+  /* ---------- 01 dinámica ---------- */
+  .dyn { grid-template-rows: auto 1fr auto; gap: 2.5vmin; }
+  .dyn .head { display: flex; justify-content: space-between; align-items: end; gap: 3vw; }
+  .dyn .head .q { text-align: right; max-width: 34vw; }
+  .cmp { display: grid; grid-template-columns: 1.15fr 1fr; gap: 3vw; align-items: stretch; }
+  .col { border-top: 2px solid var(--ink); display: grid; grid-template-rows: auto 1fr auto; }
+  .col.mvp { border-top-color: var(--red); }
+  .col .ttl { font-family: var(--mono); font-size: clamp(.7rem, 1.7vmin, 1.1rem); letter-spacing: .14em; text-transform: uppercase; padding: 1.4vmin 0; color: var(--muted); }
+  .col.mvp .ttl { color: var(--red); font-weight: 600; }
+  .col table { width: 100%; border-collapse: collapse; font-size: clamp(.95rem, 2.7vmin, 2rem); }
+  .col td { padding: 1.1vmin 0; border-bottom: 1px solid var(--rule); }
+  .col td:last-child { text-align: right; font-family: var(--mono); font-size: .8em; color: var(--muted); white-space: nowrap; }
+  .col.mvp td:last-child { color: var(--red); }
+  .col .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 1.8vmin; }
+  .col .total .lbl { font-family: var(--mono); font-size: clamp(.65rem, 1.5vmin, 1rem); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .col .total .val { font-weight: 900; font-size: clamp(1.8rem, 6vmin, 4.8rem); letter-spacing: -.03em; line-height: 1; }
+  .col.mvp .total .val { color: var(--red); }
+  .dyn .after { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--ink); padding-top: 1.6vmin; }
+
+  /* ---------- 02 kent beck ---------- */
+  .kent .body { grid-template-columns: 38vw 1fr; gap: 4vw; padding: 0; }
+  .kent .ph-wrap { min-height: 0; }
+  .kent img.ph { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; filter: grayscale(100%) contrast(1.05); }
+  .kent .txt { display: grid; grid-template-rows: auto auto 1fr auto; padding: 3vmin 0; gap: 1.5vmin; min-height: 0; }
+  .kent .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 2vmin 3vw; align-content: center; }
+  .kent .facts div { border-top: 1px solid var(--ink); padding-top: 1.2vmin; }
+  .kent .facts b { display: block; font-weight: 600; font-size: clamp(1.1rem, 3.2vmin, 2.5rem); letter-spacing: -.02em; }
+  .kent .facts span { font-family: var(--mono); font-size: clamp(.65rem, 1.5vmin, 1rem); color: var(--muted); letter-spacing: .06em; }
+  .kent blockquote { font-style: italic; font-size: clamp(1rem, 2.6vmin, 2rem); color: var(--muted); border-left: 3px solid var(--red); padding-left: 1.5vw; }
+
+  /* ---------- 03 manifiesto ---------- */
+  .mani .body { grid-template-columns: 1fr 40vw; gap: 3vw; padding: 0; }
+  .mani .txt { display: grid; grid-template-rows: auto 1fr auto; padding: 3vmin 0; }
+  .mani .nums { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 4vw; align-content: center; }
+  .mani .nums b { display: block; font-weight: 900; font-size: clamp(3rem, 13vmin, 11rem); letter-spacing: -.05em; line-height: .9; }
+  .mani .nums span { font-family: var(--mono); font-size: clamp(.7rem, 1.7vmin, 1.1rem); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .mani .sum { display: flex; gap: 3vw; font-size: clamp(1rem, 2.8vmin, 2.2rem); border-top: 2px solid var(--ink); padding-top: 1.6vmin; }
+  .mani .sum b { font-weight: 900; color: var(--red); }
+  .mani figure { position: relative; height: 100%; overflow: hidden; }
+  .mani figure img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(25%) contrast(1.05); }
+  .mani figcaption { position: absolute; left: 0; right: 0; bottom: 0; background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: clamp(.6rem, 1.4vmin, .95rem); letter-spacing: .1em; text-transform: uppercase; padding: 1.2vmin 1.5vw; }
+
+  /* ---------- 04 valores ---------- */
+  .vals .body { grid-template-rows: auto 1fr auto; }
+  .vals table { width: 100%; border-collapse: collapse; font-size: clamp(1.3rem, 4.8vmin, 4rem); align-self: center; }
+  .vals td { padding: 3.4vmin 0; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  .vals tr:first-child td { border-top: 2px solid var(--ink); }
+  .vals td.l { font-weight: 600; letter-spacing: -.02em; width: 46%; }
+  .vals td.gt { text-align: center; font-family: var(--mono); font-weight: 600; color: var(--red); width: 8%; }
+  .vals td.r { color: var(--muted); font-style: italic; }
+  .vals .foot { display: flex; justify-content: space-between; align-items: baseline; gap: 3vw; }
+  .vals .foot .h-m { white-space: nowrap; }
+  .vals .foot .lead { text-align: right; white-space: nowrap; font-size: clamp(.85rem, 2.2vmin, 1.6rem); }
+
+  /* ---------- 05 principios ---------- */
+  .prin .body { grid-template-rows: auto 1fr; gap: 2vmin; }
+  .prin ol { list-style: none; display: grid; grid-template-rows: 1fr 1fr 1.9fr 1fr; height: 100%; }
+  .prin li { display: grid; grid-template-columns: 8vw 1fr; align-items: center; border-top: 1px solid var(--rule); font-size: clamp(1.1rem, 3.3vmin, 2.7rem); color: var(--muted); }
+  .prin li:first-child { border-top: 2px solid var(--ink); }
+  .prin li .n { font-family: var(--mono); font-size: .7em; }
+  .prin li.hot { color: var(--ink); background: var(--ink); color: var(--paper); margin: 0 -4.5vw; padding: 0 4.5vw; grid-template-columns: 8vw 1fr; border: 0; }
+  .prin li.hot .n { color: var(--red); font-weight: 600; }
+  .prin li.hot .t { font-weight: 600; letter-spacing: -.02em; font-size: 1.15em; line-height: 1.15; }
+  .prin li.hot .en { display: block; font-size: .55em; font-style: italic; color: #b9b0a0; margin-top: 1vmin; font-weight: 300; }
+
+  /* ---------- 06 ejemplos ---------- */
+  .ex .body { grid-template-rows: 1fr auto; gap: 2.5vmin; padding-bottom: 2vmin; }
+  .ex .big { display: grid; grid-template-columns: 1fr 1fr; gap: 2vw; min-height: 0; }
+  .card { position: relative; overflow: hidden; display: grid; min-height: 0; }
+  .card img.bg { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card .cap { position: absolute; left: 0; bottom: 0; right: 0; background: linear-gradient(transparent, rgba(23,21,15,.7) 25%, rgba(23,21,15,.96)); color: var(--paper); padding: 8vmin 2vw 2vmin; }
+  .card .cap b { display: block; font-weight: 900; font-size: clamp(1.6rem, 5.5vmin, 4.5rem); letter-spacing: -.03em; line-height: 1; }
+  .card .cap span { font-family: var(--mono); font-size: clamp(.65rem, 1.6vmin, 1.05rem); letter-spacing: .1em; text-transform: uppercase; color: #cfc5b3; }
+  .card.mc img.logo { position: absolute; top: 2.5vmin; left: 2vw; width: 45%; filter: drop-shadow(0 2px 6px rgba(0,0,0,.6)); }
+  .card.mc ul { list-style: none; font-size: clamp(.9rem, 2.4vmin, 1.8rem); margin-top: 1.2vmin; }
+  .card.mc li { padding: .8vmin 0; border-top: 1px solid rgba(243,238,228,.25); display: flex; justify-content: space-between; gap: 1vw; }
+  .card.mc li b { font-family: var(--mono); font-weight: 600; color: #ff8a70; font-size: .8em; white-space: nowrap; display: inline; letter-spacing: 0; line-height: inherit; }
+  .logos { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 2px solid var(--ink); }
+  .logos div { padding: 1.8vmin 1vw 0; border-right: 1px solid var(--rule); display: grid; grid-template-columns: auto 1fr; gap: 1vw; align-items: center; }
+  .logos div:last-child { border-right: 0; }
+  .logos img { height: clamp(1.6rem, 4.5vmin, 3.5rem); width: auto; }
+  .logos img.wide { height: clamp(1rem, 2.8vmin, 2.2rem); }
+  .logos b { display: block; font-weight: 600; font-size: clamp(.85rem, 2.2vmin, 1.6rem); letter-spacing: -.01em; }
+  .logos span { font-family: var(--mono); font-size: clamp(.6rem, 1.4vmin, .95rem); color: var(--muted); }
+
+  /* ---------- 07-08 evolución starship ---------- */
+  .evo .body { grid-template-rows: auto 1fr auto; gap: 2vmin; padding-bottom: 1.5vmin; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2vw; min-height: 0; }
+  .steps.five { grid-template-columns: repeat(5, 1fr); }
+  .step { display: grid; grid-template-rows: 1fr auto; min-height: 0; border-top: 2px solid var(--ink); }
+  .step figure { min-height: 0; overflow: hidden; margin-top: 1vmin; position: relative; }
+  .step figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .step figure em { position: absolute; top: 0; left: 0; background: var(--red); color: var(--paper); font-style: normal; font-family: var(--mono); font-weight: 600; font-size: clamp(.65rem, 1.6vmin, 1.1rem); padding: .4vmin .8vw; letter-spacing: .08em; }
+  .step figure.txt { background: var(--ink); color: var(--paper); display: grid; align-content: end; padding: 2vmin 1.2vw; }
+  .step figure.txt .big { font-weight: 900; font-size: clamp(2.5rem, 11vmin, 9rem); letter-spacing: -.05em; line-height: .9; }
+  .step figure.txt .sub { font-family: var(--mono); font-size: clamp(.6rem, 1.4vmin, .95rem); letter-spacing: .1em; text-transform: uppercase; color: #cfc5b3; margin-top: 1vmin; line-height: 1.5; }
+  .step figure.txt .sub i { font-style: normal; color: #ff8a70; font-weight: 600; }
+  .step .t { padding-top: 1.2vmin; }
+  .step .t b { display: block; font-weight: 600; font-size: clamp(.95rem, 2.4vmin, 1.8rem); letter-spacing: -.02em; line-height: 1.1; }
+  .step .t span { display: block; font-family: var(--mono); font-size: clamp(.6rem, 1.4vmin, .95rem); color: var(--muted); margin-top: .6vmin; line-height: 1.35; }
+  .step .t span i { font-style: normal; color: var(--red); font-weight: 600; }
+  .band { display: grid; grid-template-columns: auto 1fr; gap: 3vw; align-items: baseline; border-top: 2px solid var(--ink); padding-top: 1.6vmin; }
+  .band .h-m { white-space: nowrap; }
+  .band .lead { text-align: right; }
+  .vs { display: grid; grid-template-columns: 14vw 1fr auto; gap: 2vw; align-items: center; background: var(--ink); color: var(--paper); margin: 0 -4.5vw; padding: 1.8vmin 4.5vw; }
+  .vs figure { height: 14vmin; overflow: hidden; }
+  .vs figure img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block; }
+  .vs .k { font-family: var(--mono); font-size: clamp(.6rem, 1.4vmin, .95rem); letter-spacing: .14em; text-transform: uppercase; color: #ff8a70; font-weight: 600; }
+  .vs .n { font-weight: 900; font-size: clamp(1.4rem, 4.2vmin, 3.4rem); letter-spacing: -.03em; line-height: 1; margin-top: .6vmin; }
+  .vs .n small { display: block; font-weight: 300; font-size: .45em; letter-spacing: 0; color: #cfc5b3; margin-top: .8vmin; font-family: var(--mono); }
+  .vs .nums { display: flex; gap: 2.5vw; }
+  .vs .nums div { border-left: 1px solid #4a463c; padding-left: 1.5vw; }
+  .vs .nums b { display: block; font-weight: 900; font-size: clamp(1.4rem, 4.2vmin, 3.4rem); letter-spacing: -.03em; line-height: 1; white-space: nowrap; }
+  .vs .nums span { font-family: var(--mono); font-size: clamp(.55rem, 1.3vmin, .9rem); letter-spacing: .1em; text-transform: uppercase; color: #cfc5b3; }
+
+  /* ---------- 08 one more thing ---------- */
+  .omt .body { grid-template-rows: auto 1fr auto auto; gap: 2.5vmin; }
+  .books { display: grid; grid-template-columns: 1fr 1fr; gap: 3vw; min-height: 0; }
+  .book { display: grid; grid-template-columns: auto 1fr; gap: 2vw; align-items: stretch; min-height: 0; }
+  .book .cover { height: 100%; max-height: 48vmin; width: auto; aspect-ratio: 317 / 500; object-fit: cover; box-shadow: 0.4vw 0.6vw 0 rgba(23,21,15,.18); border-radius: 2px 6px 6px 2px; }
+  .book .desc { display: grid; grid-template-rows: auto 1fr; border-top: 2px solid var(--ink); padding-top: 1.2vmin; }
+  .book .desc h3 { font-weight: 600; font-size: clamp(1.1rem, 3vmin, 2.4rem); letter-spacing: -.02em; }
+  .book .desc h3 span { font-family: var(--mono); font-weight: 400; font-size: .5em; color: var(--muted); letter-spacing: .06em; margin-left: .6em; }
+  .book .desc ul { list-style: none; align-self: center; font-size: clamp(.9rem, 2.4vmin, 1.8rem); }
+  .book .desc li { padding: .9vmin 0; border-bottom: 1px solid var(--rule); }
+  .book .desc li::before { content: "— "; color: var(--red); }
+  .tl { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 2px solid var(--ink); }
+  .tl div { padding: 1.4vmin 0 0; border-right: 1px solid var(--rule); padding-right: 1vw; }
+  .tl div:last-child { border-right: 0; }
+  .tl b { display: block; font-weight: 900; font-size: clamp(1.4rem, 4.5vmin, 3.6rem); letter-spacing: -.03em; line-height: 1; }
+  .tl span { font-family: var(--mono); font-size: clamp(.6rem, 1.4vmin, .95rem); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .final { background: var(--red); color: var(--paper); margin: 0 -4.5vw; padding: 2.4vmin 4.5vw; font-weight: 600; font-size: clamp(1.3rem, 4vmin, 3.2rem); letter-spacing: -.02em; line-height: 1.15; }
+  .final em { font-style: italic; font-weight: 900; }
+
+  #hint { position: fixed; bottom: .6vmin; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: .65rem; color: var(--muted); letter-spacing: .1em; transition: opacity 1s; pointer-events: none; }
+
+  @media (max-width: 760px) {
+    .kent .body, .mani .body, .cmp, .big, .books { grid-template-columns: 1fr !important; }
+    .kent img.ph { height: 30vh; }
+    .mani figure { height: 26vh; }
+    .logos, .tl, .steps, .steps.five { grid-template-columns: 1fr 1fr; }
+    .vs { grid-template-columns: 1fr; }
+    .prin li.hot { margin: 0 -4.5vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 01 · Dinámica -->
+<section class="slide dyn active">
+  <div class="top"><span>Dinámica</span><span><span class="n">01</span> / 09</span></div>
+  <div class="body dyn" style="padding:2.5vmin 0 1.5vmin">
+    <div class="head">
+      <div>
+        <div class="kicker">Idea de negocio</div>
+        <div class="display h-l">Tienda online de<br>productos médicos</div>
+      </div>
+      <div class="q lead">¿Qué necesitan tener listo<br>antes de abrir?<br>¿Cuánto tiempo les tomaría?</div>
+    </div>
+    <div class="cmp">
+      <div class="col frag">
+        <div class="ttl">Lo que todos planean primero</div>
+        <table>
+          <tr><td>Página web con carrito</td><td>2 meses</td></tr>
+          <tr><td>App móvil</td><td>3 meses</td></tr>
+          <tr><td>Logo, marca, empaques</td><td>3 semanas</td></tr>
+          <tr><td>Pasarela de pago con tarjeta</td><td>1 mes</td></tr>
+          <tr><td>Almacén e inventario completo</td><td>1 mes</td></tr>
+          <tr><td>Sistema de pedidos y facturación</td><td>1 mes</td></tr>
+          <tr><td>Campaña en redes</td><td>2 semanas</td></tr>
+        </table>
+        <div class="total"><span class="lbl">Primera venta</span><span class="val">≈ 6 meses</span></div>
+      </div>
+      <div class="col mvp frag">
+        <div class="ttl">Lanzamos el lunes</div>
+        <table>
+          <tr><td>5 productos que ya tenemos</td><td>hoy</td></tr>
+          <tr><td>Fotos con el celular</td><td>1 hora</td></tr>
+          <tr><td>Catálogo en WhatsApp</td><td>1 hora</td></tr>
+          <tr><td>Pago con Yape</td><td>0 min</td></tr>
+          <tr><td>Entrega en moto / recojo</td><td>hoy</td></tr>
+        </table>
+        <div class="total"><span class="lbl">Primera venta</span><span class="val">1 día</span></div>
+      </div>
+    </div>
+    <div class="after frag">
+      <span class="h-m">Vendieron una semana. <span class="red">Semana 2:</span> ¿qué agregan?</span>
+      <span class="lead">y así cada dos semanas</span>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>Entrega frecuente</span></div>
+</section>
+
+<!-- 02 · Kent Beck -->
+<section class="slide kent">
+  <div class="top"><span>El personaje</span><span><span class="n">02</span> / 09</span></div>
+  <div class="body">
+    <div class="ph-wrap"><img class="ph" src="assets/kent-beck.jpg" alt="Kent Beck"></div>
+    <div class="txt">
+      <div class="kicker">Silicon Valley · 1996 · proyecto Chrysler C3</div>
+      <div class="display h-xl">Kent<br>Beck</div>
+      <div class="facts">
+        <div><b>Extreme Programming</b><span>Iteraciones de 1–2 semanas · small releases</span></div>
+        <div><b>TDD</b><span>Primero la prueba, después el código</span></div>
+        <div><b>Patrones de diseño</b><span>Años 80–90, con Ward Cunningham</span></div>
+        <div><b>JUnit</b><span>Con Erich Gamma · todo xUnit viene de aquí</span></div>
+      </div>
+      <blockquote>"El optimismo es un riesgo laboral de la programación. El feedback es el tratamiento."</blockquote>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>Foto: Wikimedia Commons</span></div>
+</section>
+
+<!-- 03 · Manifiesto -->
+<section class="slide mani">
+  <div class="top"><span>El origen</span><span><span class="n">03</span> / 09</span></div>
+  <div class="body">
+    <div class="txt">
+      <div class="kicker">Snowbird, Utah · febrero</div>
+      <div class="nums">
+        <div><b>2001</b><span>año</span></div>
+        <div><b>17</b><span>personas</span></div>
+        <div><b>1</b><span>fin de semana</span></div>
+      </div>
+      <div class="sum"><span class="display h-m">Manifiesto Ágil</span><span><b>4</b> valores</span><span><b>12</b> principios</span></div>
+    </div>
+    <figure>
+      <img src="assets/snowbird.jpg" alt="Snowbird, Utah">
+      <figcaption>Snowbird, Utah — el resort donde se firmó</figcaption>
+    </figure>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>agilemanifesto.org</span></div>
+</section>
+
+<!-- 04 · Los 4 valores -->
+<section class="slide vals">
+  <div class="top"><span>Los 4 valores</span><span><span class="n">04</span> / 09</span></div>
+  <div class="body">
+    <div class="kicker">Valoramos</div>
+    <table>
+      <tr><td class="l">Individuos e interacciones</td><td class="gt">&gt;</td><td class="r">procesos y herramientas</td></tr>
+      <tr><td class="l">Software funcionando</td><td class="gt">&gt;</td><td class="r">documentación exhaustiva</td></tr>
+      <tr><td class="l">Colaboración con el cliente</td><td class="gt">&gt;</td><td class="r">negociación de contratos</td></tr>
+      <tr><td class="l">Respuesta ante el cambio</td><td class="gt">&gt;</td><td class="r">seguir un plan</td></tr>
+    </table>
+    <div class="foot"><span class="h-m">Lo de la derecha importa. Lo de la izquierda importa <span class="red">más</span>.</span><span class="lead">"Aunque valoramos los elementos de la derecha,<br>valoramos más los de la izquierda."</span></div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>agilemanifesto.org</span></div>
+</section>
+
+<!-- 05 · Los principios -->
+<section class="slide prin">
+  <div class="top"><span>Los principios</span><span><span class="n">05</span> / 09</span></div>
+  <div class="body">
+    <div class="kicker">Lo que ya vimos — y el de hoy</div>
+    <ol>
+      <li><span class="n">01</span><span>Entrega temprana y continua de software con valor.</span></li>
+      <li><span class="n">02</span><span>Aceptamos que los requisitos cambien, incluso tarde.</span></li>
+      <li class="hot"><span class="n">03</span><span class="t">Entregamos software funcional frecuentemente, entre dos semanas y dos meses, con preferencia al periodo más corto posible.<span class="en">Deliver working software frequently, from a couple of weeks to a couple of months, with a preference to the shorter timescale.</span></span></li>
+      <li><span class="n">04</span><span>Negocio y desarrolladores trabajamos juntos a diario.</span></li>
+    </ol>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>agilemanifesto.org</span></div>
+</section>
+
+<!-- 06 · Ejemplos reales -->
+<section class="slide ex">
+  <div class="top"><span>En la vida real</span><span><span class="n">06</span> / 09</span></div>
+  <div class="body">
+    <div class="big">
+      <div class="card">
+        <img class="bg" src="assets/starship-stack.jpg" alt="Starship completo en la torre" style="object-position:center 40%">
+        <div class="cap"><span>SpaceX · cada vuelo de prueba es una entrega</span><b>Starship</b></div>
+      </div>
+      <div class="card mc">
+        <img class="bg" src="assets/minecraft-beta.jpg" alt="Minecraft Beta 1.8">
+        <img class="logo" src="assets/minecraft-logo.png" alt="Minecraft">
+        <div class="cap">
+          <span>Los fans lo terminaron con él · snapshots semanales hasta hoy</span>
+          <ul>
+            <li>Se vende en alfa, incompleto<b>2009</b></li>
+            <li>Actualización cada viernes<b>2010</b></li>
+            <li>1 000 000 de copias, aún en beta<b>ene 2011</b></li>
+            <li>"Lanzamiento" oficial<b>nov 2011</b></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="logos">
+      <div><img class="wide" src="assets/amazon.svg" alt="Amazon"><div><b>Amazon</b><span>cada 11 s</span></div></div>
+      <div><img src="assets/logo-facebook.svg" alt="Facebook"><div><b>Facebook</b><span>varias al día</span></div></div>
+      <div><img src="assets/logo-googlechrome.svg" alt="Chrome"><div><b>Chrome</b><span>6 → 4 semanas</span></div></div>
+      <div><img src="assets/logo-netflix.svg" alt="Netflix"><div><b>Netflix</b><span>miles al día</span></div></div>
+      <div><img src="assets/logo-tesla.svg" alt="Tesla"><div><b>Tesla</b><span>tu auto se actualiza</span></div></div>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>Fotos: SpaceX · Mojang</span></div>
+</section>
+
+<!-- 07 · Evolución I: antes del cohete completo -->
+<section class="slide evo">
+  <div class="top"><span>Entregar, explotar, aprender · I</span><span><span class="n">07</span> / 09</span></div>
+  <div class="body">
+    <div>
+      <div class="kicker">SpaceX · 2008 → 2021</div>
+      <div class="display h-m">Cada cohete fue una entrega. Varios explotaron. Todos enseñaron.</div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <figure><img src="assets/falcon1.jpg" alt="Falcon 1"><em>2008</em></figure>
+        <div class="t"><b>Falcon 1</b><span><i>3 fallos</i> seguidos. Al 4.º intento, órbita. Con plata para un solo intento más.</span></div>
+      </div>
+      <div class="step">
+        <figure><img src="assets/falcon9-landing.jpg" alt="Falcon 9 aterrizando en barco"><em>2016</em></figure>
+        <div class="t"><b>Falcon 9 aterriza</b><span>Varios se estrellan contra el barco antes del primero. Hoy aterrizan todos los días.</span></div>
+      </div>
+      <div class="step">
+        <figure><img src="assets/starhopper.jpg" alt="Starhopper"><em>2019</em></figure>
+        <div class="t"><b>Starhopper</b><span>"El tanque de agua". Salta <i>150 m</i>. Feo, pero vuela. Primera prueba real del motor Raptor.</span></div>
+      </div>
+      <div class="step">
+        <figure><img src="assets/sn8.jpg" alt="Starship SN8"><em>2020</em></figure>
+        <div class="t"><b>SN8 → SN15</b><span>SN8 sube 12 km y <i>explota</i> al aterrizar. SN9, SN10 y SN11 también. SN15 aterriza en mayo 2021.</span></div>
+      </div>
+    </div>
+    <div class="band frag">
+      <span class="h-m">4 explosiones en 5 meses.</span>
+      <span class="lead">Cada una costó semanas, no años.<br>El siguiente prototipo ya traía la corrección.</span>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>Fotos: SpaceX / Wikimedia Commons</span></div>
+</section>
+
+<!-- 08 · Evolución II: el cohete completo -->
+<section class="slide evo">
+  <div class="top"><span>Entregar, explotar, aprender · II</span><span><span class="n">08</span> / 09</span></div>
+  <div class="body">
+    <div>
+      <div class="kicker">Starship + Super Heavy · 2023 → 2026</div>
+      <div class="display h-m">13 vuelos en 3 años. Hasta la plataforma se iteró.</div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <figure><img src="assets/starship-ift1.jpg" alt="Starship vuelo 1"><em>abr 2023 · Vuelo 1</em></figure>
+        <div class="t"><b>Ship 24: explota a los 4 min</b><span>Y la plataforma, sin deflector de llamas, queda hecha un cráter. Llovió concreto a kilómetros.</span></div>
+      </div>
+      <div class="step">
+        <figure><img src="assets/deluge-top.jpg" alt="Placa de acero disparando agua bajo el cohete" style="object-position:center 30%"><em>ago 2023 · El deflector</em></figure>
+        <div class="t"><b>Placa de acero que dispara agua</b><span>v1: nada. v2: placa refrigerada, <i>1,3 millones de litros</i> hacia arriba en cada despegue. v3: en la Pad B se rindieron y <i>cavaron un foso</i>.</span></div>
+      </div>
+      <div class="step">
+        <figure><img src="assets/starship-catch.jpg" alt="La torre atrapa el booster"><em>oct 2024 · Vuelo 5</em></figure>
+        <div class="t"><b>Los brazos lo atrapan en el aire</b><span>El booster de 70 m vuelve a la torre y los "palillos" lo agarran. Nadie lo había hecho.</span></div>
+      </div>
+      <div class="step">
+        <figure><img src="assets/starship-reentry13.jpg" alt="Reentrada de Starship, vuelo 13" style="object-position:72% center"><em>jul 2026 · Vuelo 13</em></figure>
+        <div class="t"><b>Ship 40 (V3): reentrada completa</b><span>Ya no explotan. Desplegó 20 Starlink. SN1 → SN15 → Ship 24 → Ship 33 → <i>Ship 40</i>. Cada número, una entrega.</span></div>
+      </div>
+    </div>
+    <div class="vs frag">
+      <figure><img src="assets/sls.jpg" alt="SLS Artemis I"></figure>
+      <div><div class="k">vs · NASA SLS</div><div class="n">Diseñado completo antes de volar<small>programa 2011 → primer vuelo 2022</small></div></div>
+      <div class="nums">
+        <div><b>11</b><span>años</span></div>
+        <div><b>1</b><span>vuelo</span></div>
+        <div><b>4 000 M</b><span>US$ por lanzamiento</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>Fotos: SpaceX · NASA</span></div>
+</section>
+
+<!-- 09 · One more thing -->
+<section class="slide omt">
+  <div class="top"><span>Fuera del software</span><span><span class="n">09</span> / 09</span></div>
+  <div class="body">
+    <div class="display h-l">One more thing…</div>
+    <div class="books">
+      <div class="book frag">
+        <img class="cover" src="assets/libro-negro.jpg" alt="El libro negro del emprendedor">
+        <div class="desc">
+          <h3>Por qué fracasan<span>Trías de Bes · 2007</span></h3>
+          <ul>
+            <li>Pensar que el éxito depende de la idea</li>
+            <li>Negocios que tardan en dar valor</li>
+            <li>Ejecutar &gt; planear</li>
+          </ul>
+        </div>
+      </div>
+      <div class="book frag">
+        <img class="cover" src="assets/lean-startup.png" alt="The Lean Startup">
+        <div class="desc">
+          <h3>MVP<span>Eric Ries · 2011</span></h3>
+          <ul>
+            <li>Lo mínimo que funcione, hoy</li>
+            <li>Construir → medir → aprender</li>
+            <li>"Lo tomé de las metodologías ágiles"</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="tl frag">
+      <div><b>1996</b><span>Kent Beck · XP</span></div>
+      <div><b>2001</b><span>Manifiesto Ágil</span></div>
+      <div><b>2011</b><span>Lean Startup</span></div>
+      <div><b>hoy</b><span>toda startup</span></div>
+    </div>
+    <div class="final frag">Entregar seguido no es para ir más rápido. Es para <em>equivocarse más barato</em>.</div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 3</span><span>Gracias</span></div>
+</section>
+
+<div id="hint">← → avanzar · F pantalla completa</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const hint = document.getElementById('hint');
+  let i = Math.min(Math.max(parseInt(location.hash.slice(1)) || 1, 1), slides.length) - 1;
+
+  const frags = s => [...s.querySelectorAll('.frag')];
+  function show(n, fromEnd = false) {
+    i = Math.min(Math.max(n, 0), slides.length - 1);
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    frags(slides[i]).forEach(f => f.classList.toggle('on', fromEnd));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function next() {
+    const f = frags(slides[i]).find(x => !x.classList.contains('on'));
+    if (f) f.classList.add('on'); else if (i < slides.length - 1) show(i + 1);
+  }
+  function prev() {
+    const on = frags(slides[i]).filter(x => x.classList.contains('on'));
+    if (on.length) on[on.length - 1].classList.remove('on'); else if (i > 0) show(i - 1, true);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', 'ArrowDown', ' ', 'PageDown', 'Enter'].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1, true);
+    else if (e.key.toLowerCase() === 'f') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+  document.addEventListener('click', e => (e.clientX > innerWidth / 3 ? next() : prev()));
+
+  let x0 = null;
+  document.addEventListener('touchstart', e => x0 = e.touches[0].clientX, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 40) dx < 0 ? next() : prev();
+    x0 = null;
+  });
+
+  setTimeout(() => hint.style.opacity = 0, 4000);
+  show(i, location.search.includes('all'));
+</script>
+</body>
+</html>
