@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Principio 8 · Ritmo sostenible</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,900&family=IBM+Plex+Mono:wght@400;600&family=Barlow+Condensed:wght@500;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f3eee4;
+    --ink: #17150f;
+    --muted: #6f675a;
+    --rule: #cfc5b3;
+    --red: #d1361f;
+    --night: #0b0b0e;
+    --yellow: #fcee0a;
+    --cyan: #3ee6f0;
+    --dim: #8d8c96;
+    --serif: "Fraunces", "Georgia", "Times New Roman", serif;
+    --mono: "IBM Plex Mono", "Consolas", "Courier New", monospace;
+    --cond: "Barlow Condensed", "Arial Narrow", "Impact", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--night); color: var(--ink); overflow: hidden; }
+  body { font-family: var(--serif); font-weight: 300; line-height: 1.2; }
+
+  /* ---------- marco de cada lámina ---------- */
+  .slide {
+    position: absolute; inset: 0; background: var(--paper);
+    display: grid; grid-template-rows: auto 1fr auto;
+    padding: 3.2vmin 4.5vw 2.6vmin;
+    opacity: 0; transition: opacity .35s ease; pointer-events: none; overflow: hidden;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+  .top, .bottom {
+    position: relative; z-index: 2;
+    font-family: var(--mono); font-size: clamp(.65rem, 1.5vmin, 1rem); letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); display: flex; justify-content: space-between; align-items: center;
+  }
+  .top { border-bottom: 2px solid var(--ink); padding-bottom: 1.4vmin; }
+  .bottom { border-top: 1px solid var(--rule); padding-top: 1.4vmin; }
+  .top .n, .cnt b { color: var(--red); font-weight: 600; }
+  .cp .cnt b { color: var(--yellow); }
+  .body { position: relative; z-index: 2; display: grid; min-height: 0; padding: 3vmin 0; }
+
+  .frag { opacity: 0; transform: translateY(1.2vmin); transition: opacity .4s ease, transform .4s ease; }
+  .frag.on { opacity: 1; transform: none; }
+
+  /* ---------- láminas Cyberpunk (noche + amarillo) ---------- */
+  .cp { background: var(--night); color: #f2f2f2; }
+  .cp .top { color: var(--dim); border-bottom-color: var(--yellow); }
+  .cp .top .n { color: var(--yellow); }
+  .cp .bottom { color: var(--dim); border-top-color: #2a2a31; }
+  .cp .kicker { font-family: var(--mono); font-size: clamp(.8rem, 2.2vmin, 1.5rem); letter-spacing: .18em; text-transform: uppercase; color: var(--yellow); font-weight: 600; }
+  .cp .title { font-family: var(--cond); font-weight: 900; text-transform: uppercase; line-height: .88; letter-spacing: -.01em; }
+  .t-xl { font-size: clamp(3.5rem, 17vmin, 15rem); }
+  .t-l  { font-size: clamp(2.4rem, 10vmin, 8.5rem); }
+  .t-m  { font-size: clamp(1.6rem, 6vmin, 5rem); }
+  .y { color: var(--yellow); }
+  .c { color: var(--cyan); }
+  .bgimg { position: absolute; inset: 0; z-index: 0; }
+  .bgimg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bgimg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,11,14,.95) 0%, rgba(11,11,14,.75) 45%, rgba(11,11,14,.15) 100%); }
+  .bgimg.full::after { background: linear-gradient(0deg, rgba(11,11,14,.92) 0%, rgba(11,11,14,.5) 30%, rgba(11,11,14,0) 55%); }
+  .bgimg.soft::after { background: linear-gradient(0deg, rgba(11,11,14,.92) 0%, rgba(11,11,14,.55) 28%, rgba(11,11,14,0) 50%), linear-gradient(180deg, rgba(11,11,14,.55) 0%, rgba(11,11,14,0) 30%); }
+  .cover .title, .hist .title { text-shadow: 0 .4vmin 2vmin rgba(0,0,0,.6); }
+  .ybar { background: var(--yellow); color: var(--night); margin: 0 -4.5vw; padding: 2vmin 4.5vw; font-family: var(--cond); font-weight: 800; text-transform: uppercase; font-size: clamp(1.4rem, 5vmin, 4rem); line-height: 1; letter-spacing: .01em; }
+
+  /* 01 portada */
+  .cover .body { align-content: end; gap: 2vmin; padding-bottom: 5vmin; }
+  .cover .sub { font-family: var(--mono); font-size: clamp(.85rem, 2.4vmin, 1.7rem); color: #d9d9de; max-width: 60vw; line-height: 1.4; }
+
+  /* 02 historia */
+  .hist .body { grid-template-rows: auto 1fr; gap: 3vmin; }
+  .tl5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.4vw; align-content: end; }
+  .tl5 > div { border-top: 3px solid var(--yellow); padding-top: 1.6vmin; }
+  .tl5 > div.red { border-top-color: var(--red); }
+  .tl5 b { display: block; font-family: var(--cond); font-weight: 900; font-size: clamp(2.2rem, 9vmin, 7.5rem); line-height: .9; color: var(--yellow); }
+  .tl5 > div.red b { color: #ff5a43; }
+  .tl5 strong { display: block; font-family: var(--cond); font-weight: 800; text-transform: uppercase; font-size: clamp(1.1rem, 3.6vmin, 3rem); line-height: 1; margin-top: 1vmin; }
+  .tl5 span { display: block; font-family: var(--mono); font-size: clamp(.62rem, 1.5vmin, 1rem); color: #c9c9cf; margin-top: 1vmin; line-height: 1.4; }
+
+  /* 03 retrasos */
+  .delays .body { grid-template-rows: auto 1fr auto; gap: 2vmin; }
+  .dates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5vw; align-items: center; }
+  .date { text-align: center; }
+  .date .k { font-family: var(--mono); font-size: clamp(.8rem, 2.2vmin, 1.5rem); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+  .date b { display: block; font-family: var(--cond); font-weight: 900; font-size: clamp(2.6rem, 12vmin, 10rem); line-height: .9; text-transform: uppercase; margin: 1vmin 0; }
+  .date b small { display: block; font-size: .4em; font-weight: 800; }
+  .date.x b { color: #6c6b74; text-decoration: line-through; text-decoration-color: #ff3b30; text-decoration-thickness: .08em; }
+  .date.ok b { color: var(--yellow); }
+  .date .why { font-family: var(--mono); font-size: clamp(.85rem, 2.4vmin, 1.6rem); color: #c9c9cf; line-height: 1.4; }
+
+  /* 04 crunch */
+  .crunch .body { grid-template-rows: auto 1fr auto; gap: 2.5vmin; }
+  .big4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; align-content: center; }
+  .big4 > div { border-top: 3px solid #ff3b30; padding-top: 1.4vmin; }
+  .big4 b { display: block; font-family: var(--cond); font-weight: 900; font-size: clamp(3rem, 15vmin, 13rem); line-height: .85; color: #ff5a43; }
+  .big4 b small { font-size: .35em; font-weight: 800; color: #f2f2f2; margin-left: .15em; }
+  .big4 span { display: block; font-family: var(--mono); font-size: clamp(.9rem, 2.6vmin, 1.8rem); color: #d9d9de; margin-top: 1.2vmin; line-height: 1.4; }
+  .quote { border-left: 4px solid var(--yellow); padding-left: 1.5vw; font-family: var(--mono); font-size: clamp(.95rem, 2.8vmin, 2rem); color: #d9d9de; line-height: 1.45; }
+  .quote b { color: var(--yellow); font-weight: 600; }
+
+  /* 05 lanzamiento */
+  .launch .body { grid-template-columns: 1fr 1fr; gap: 3vw; }
+  .launch .l { display: grid; grid-template-rows: auto auto 1fr; gap: 2vmin; }
+  .rec { display: grid; gap: 1.6vmin; align-content: center; }
+  .rec div { border-top: 1px solid #2a2a31; padding-top: 1.2vmin; display: flex; align-items: baseline; gap: 1.5vw; }
+  .rec b { font-family: var(--cond); font-weight: 900; font-size: clamp(2rem, 8vmin, 6.5rem); line-height: .9; color: var(--cyan); min-width: 12vw; }
+  .rec span { font-family: var(--mono); font-size: clamp(.95rem, 2.8vmin, 2rem); color: #d9d9de; }
+  .launch figure { position: relative; min-height: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 1vmin; }
+  .launch figure .k2 { font-family: var(--cond); font-weight: 800; text-transform: uppercase; font-size: clamp(1.2rem, 4vmin, 3.2rem); color: #ff5a43; line-height: 1; }
+  .launch figure img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; border: 2px solid #ff3b30; }
+  .launch figure figcaption { font-family: var(--mono); font-size: clamp(.85rem, 2.3vmin, 1.6rem); color: var(--dim); display: flex; justify-content: space-between; }
+
+  /* envergadura */
+  .money .body { align-content: center; gap: 3vmin; }
+  .money .big { font-family: var(--cond); font-weight: 900; font-size: clamp(5rem, 30vmin, 26rem); line-height: .8; color: var(--yellow); text-shadow: 0 .5vmin 3vmin rgba(0,0,0,.6); }
+  .money .big small { display: block; font-size: .18em; font-weight: 800; color: #fff; text-transform: uppercase; margin-top: 1.5vmin; }
+  .cmp3 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; }
+  .cmp3 div { border-top: 3px solid var(--yellow); padding-top: 1.2vmin; }
+  .cmp3 div:last-child { border-top-color: var(--dim); }
+  .cmp3 b { display: block; font-family: var(--cond); font-weight: 900; font-size: clamp(2rem, 8vmin, 6.5rem); line-height: .9; }
+  .cmp3 span { font-family: var(--mono); font-size: clamp(.85rem, 2.4vmin, 1.7rem); color: #d9d9de; }
+
+  /* demo 2018 */
+  .demo .body { grid-template-columns: 1.1fr 1fr; gap: 3vw; }
+  .demo figure { position: relative; min-height: 0; }
+  .demo figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .demo figcaption { position: absolute; left: 0; top: 0; background: var(--cyan); color: var(--night); font-family: var(--cond); font-weight: 800; text-transform: uppercase; font-size: clamp(1rem, 3.4vmin, 2.8rem); padding: .6vmin 1vw; }
+  .demo .r { display: grid; grid-template-rows: auto 1fr; gap: 2vmin; }
+  .prom { list-style: none; display: grid; align-content: center; }
+  .prom li { border-top: 1px solid #3a3a42; padding: 1.6vmin 0; }
+  .prom b { display: block; font-family: var(--cond); font-weight: 800; text-transform: uppercase; font-size: clamp(1.4rem, 5vmin, 4rem); line-height: 1; text-decoration: line-through; text-decoration-color: #ff3b30; text-decoration-thickness: .08em; }
+  .prom span { display: block; font-family: var(--mono); font-size: clamp(.9rem, 2.6vmin, 1.8rem); color: var(--yellow); margin-top: .6vmin; }
+
+  /* expectativa vs realidad + bugs (fondo claro para que se vean bien) */
+  .lol { background: #fbf8f1; }
+  .lol .body { grid-template-rows: auto 1fr; gap: 2vmin; padding: 2vmin 0 1.5vmin; }
+  .memes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2vw; min-height: 0; }
+  .memes figure { position: relative; min-height: 0; }
+  .memes img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .memes figcaption { position: absolute; inset: auto 0 0 0; display: flex; justify-content: space-around; font-family: var(--cond); font-weight: 900; font-size: clamp(1.2rem, 4vmin, 3.2rem); color: #fff; text-shadow: 0 0 1vmin #000, 0 0 .3vmin #000; padding-bottom: 1vmin; }
+  .grid-b { display: grid; grid-template-columns: .8fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1.2vw; min-height: 0; }
+  .grid-b figure.tall { grid-row: span 2; }
+  .grid-b figure { position: relative; overflow: hidden; min-height: 0; display: grid; grid-template-rows: 1fr auto; background: #fff; box-shadow: 0 .4vmin 1.6vmin rgba(0,0,0,.12); }
+  .grid-b img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; }
+  .grid-b figcaption { background: var(--ink); color: var(--yellow); font-family: var(--cond); font-weight: 800; text-transform: uppercase; font-size: clamp(1.1rem, 3.6vmin, 3rem); padding: 1vmin 1vw; line-height: 1; }
+
+  /* 07 desastre */
+  .dis .body { grid-template-rows: auto 1fr auto; gap: 2vmin; }
+  .dlist { display: grid; grid-template-columns: 1fr 1fr; gap: 0 3vw; align-content: center; max-width: 80vw; }
+  .dlist div { border-top: 1px solid #3a3a42; padding: 1.5vmin 0; }
+  .dlist b { display: block; font-family: var(--cond); font-weight: 800; text-transform: uppercase; font-size: clamp(1.3rem, 4.4vmin, 3.6rem); line-height: 1; }
+  .dlist b i { font-style: normal; color: #ff5a43; }
+  .dlist span { display: block; font-family: var(--mono); font-size: clamp(.9rem, 2.5vmin, 1.7rem); color: #c9c9cf; margin-top: .8vmin; }
+
+  /* 08 recuperación */
+  .rev .body { grid-template-rows: auto 1fr auto; gap: 2vmin; }
+  .tl6 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2vw; align-content: center; }
+  .tl6 > div { border-top: 3px solid var(--cyan); padding-top: 1.4vmin; }
+  .tl6 > div.top3 { border-top-color: var(--yellow); }
+  .tl6 em { font-style: normal; font-family: var(--mono); font-size: clamp(.85rem, 2.3vmin, 1.6rem); color: var(--cyan); letter-spacing: .08em; }
+  .tl6 > div.top3 em { color: var(--yellow); }
+  .tl6 b { display: block; font-family: var(--cond); font-weight: 800; text-transform: uppercase; font-size: clamp(1.2rem, 4vmin, 3.3rem); line-height: .95; margin-top: .8vmin; }
+  .tl6 span { display: block; font-family: var(--mono); font-size: clamp(.85rem, 2.3vmin, 1.6rem); color: #c9c9cf; margin-top: .8vmin; line-height: 1.4; }
+
+  /* 09 moraleja */
+  .moral .body { align-content: center; gap: 4vmin; }
+  .years { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; }
+  .years div { border-top: 3px solid #3a3a42; padding-top: 1.4vmin; }
+  .years div.hot { border-top-color: var(--yellow); }
+  .years span { font-family: var(--mono); font-size: clamp(.9rem, 2.8vmin, 2rem); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .years b { display: block; font-family: var(--cond); font-weight: 900; font-size: clamp(3.5rem, 17vmin, 15rem); line-height: .85; }
+  .years div.hot b { color: var(--yellow); }
+
+  /* ---------- láminas del principio (papel) ---------- */
+  .kicker { font-family: var(--mono); font-size: clamp(.7rem, 1.7vmin, 1.1rem); letter-spacing: .18em; text-transform: uppercase; color: var(--red); font-weight: 600; }
+  .display { font-weight: 900; letter-spacing: -.03em; line-height: .95; font-variation-settings: "opsz" 144; }
+  .h-l  { font-size: clamp(2rem, 7vmin, 6rem); }
+  .lead { font-size: clamp(1rem, 2.6vmin, 2rem); color: var(--muted); font-style: italic; }
+  .red { color: var(--red); }
+  .final { background: var(--red); color: var(--paper); margin: 0 -4.5vw; padding: 2.4vmin 4.5vw; font-weight: 600; font-size: clamp(1.3rem, 4vmin, 3.2rem); letter-spacing: -.02em; line-height: 1.15; }
+  .final em { font-style: italic; font-weight: 900; }
+
+  .p8 .body { align-content: center; gap: 3vmin; }
+  .p8 .num { font-weight: 900; font-size: clamp(5rem, 26vmin, 22rem); line-height: .8; color: var(--red); letter-spacing: -.05em; }
+  .p8 .txt { display: grid; grid-template-columns: auto 1fr; gap: 4vw; align-items: center; }
+  .p8 .t { font-weight: 600; font-size: clamp(1.5rem, 5vmin, 4.2rem); letter-spacing: -.02em; line-height: 1.1; }
+  .p8 .t mark { background: none; color: var(--red); }
+  .p8 .en { font-style: italic; color: var(--muted); font-size: clamp(1rem, 2.9vmin, 2.2rem); margin-top: 2vmin; }
+
+  .dat .body { grid-template-rows: auto 1fr auto; gap: 2.5vmin; }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3vw; align-content: center; }
+  .three > div { border-top: 3px solid var(--ink); padding-top: 1.6vmin; }
+  .three > div > b { display: block; font-weight: 900; font-size: clamp(2.6rem, 11vmin, 9rem); letter-spacing: -.05em; line-height: .9; color: var(--red); }
+  .three p { font-size: clamp(1.2rem, 3.8vmin, 3rem); margin-top: 1.4vmin; line-height: 1.15; }
+  .three span { display: block; font-family: var(--mono); font-size: clamp(.8rem, 2.2vmin, 1.5rem); color: var(--muted); margin-top: 1.2vmin; }
+
+  .dyn .body { grid-template-rows: auto 1fr auto; gap: 3vmin; }
+  .dyn .rules { display: grid; grid-template-columns: 1fr 1fr auto; gap: 3vw; align-items: center; }
+  .dyn .rule { border-top: 3px solid var(--ink); padding-top: 1.4vmin; }
+  .dyn .rule.a { border-top-color: var(--red); }
+  .dyn .rule .ttl { font-family: var(--mono); font-size: clamp(.85rem, 2.4vmin, 1.6rem); letter-spacing: .14em; text-transform: uppercase; font-weight: 600; }
+  .dyn .rule.a .ttl { color: var(--red); }
+  .dyn .rule p { font-size: clamp(1.1rem, 3.6vmin, 2.8rem); margin-top: 1vmin; line-height: 1.15; }
+  .dyn .rule p b { font-weight: 900; }
+  .dyn .lead { font-size: clamp(1.1rem, 3.4vmin, 2.6rem); }
+  .timer { text-align: center; }
+  .timer .clk { font-family: var(--mono); font-weight: 600; font-size: clamp(2.4rem, 12vmin, 10rem); line-height: 1; letter-spacing: -.04em; }
+  .timer .clk.run { color: var(--red); }
+  .timer button { font-family: var(--mono); font-size: clamp(.7rem, 1.8vmin, 1.1rem); background: transparent; border: 2px solid var(--ink); padding: .6vmin 1.2vw; margin: 1vmin .3vw 0; cursor: pointer; color: var(--ink); }
+  .timer button:hover { background: var(--ink); color: var(--paper); }
+
+  #hint { position: fixed; z-index: 5; bottom: .6vmin; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: .65rem; color: var(--dim); letter-spacing: .1em; transition: opacity 1s; pointer-events: none; }
+
+  @media (max-width: 760px) {
+    .slide { overflow-y: auto; }
+    .tl5, .tl6, .dates, .big4, .years, .three { grid-template-columns: 1fr 1fr; }
+    .launch .body, .dlist, .dyn .rules, .p8 .txt { grid-template-columns: 1fr; }
+    .grid-b, .memes, .cmp3 { grid-template-columns: 1fr 1fr; }
+    .grid-b figure, .memes figure { height: 26vh; }
+    .demo .body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- · Portada -->
+<section class="slide cp cover active">
+  <div class="bgimg full"><img src="assets/cp/cover.jpg" alt="V frente a Night City, Cyberpunk 2077"></div>
+  <div class="top"><span>CD Projekt Red · Polonia</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="kicker">Los creadores de The Witcher 3</div>
+    <div class="title t-xl">Cyberpunk<br><span class="y">2077</span></div>
+    <div class="sub">El juego más esperado de la década…<br>y uno de los lanzamientos más desastrosos de la historia.</div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Imagen: CD Projekt Red</span></div>
+</section>
+
+<!-- · La historia -->
+<section class="slide cp hist">
+  <div class="bgimg soft"><img src="assets/cp/ss1.jpg" alt="Johnny Silverhand (Keanu Reeves)"></div>
+  <div class="top"><span>La historia</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="title t-l">8 años<br>de <span class="y">hype</span></div>
+    <div class="tl5">
+      <div><b>2012</b><strong>Anuncio</strong><span>Mayo. Solo un nombre y una idea.</span></div>
+      <div><b>2016</b><strong>Inicio real</strong><span>Terminan The Witcher 3 y arranca la producción completa. ~500 personas.</span></div>
+      <div><b>2018</b><strong>Demo E3</strong><span>+100 premios… con una demo que era casi toda falsa (Bloomberg).</span></div>
+      <div><b>2019</b><strong>Keanu Reeves</strong><span>“You’re breathtaking!” El juego más comentado del E3.</span></div>
+      <div class="red"><b>2020</b><strong>Lanzamiento</strong><span>Fecha prometida: 16 de abril de 2020.</span></div>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Imagen: CD Projekt Red</span></div>
+</section>
+
+<!-- · La envergadura -->
+<section class="slide cp money">
+  <div class="bgimg"><img src="assets/cp/ss1.jpg" alt="" style="object-position:right center"></div>
+  <div class="top"><span>La envergadura</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="kicker">Costo de producción + marketing</div>
+    <div class="big">$316<small>millones de dólares</small></div>
+    <div class="cmp3">
+      <div class="frag"><b>~500</b><span>personas trabajando</span></div>
+      <div class="frag"><b>8 años</b><span>desde el anuncio</span></div>
+      <div class="frag"><b>$440 M</b><span>contando los arreglos y la expansión</span></div>
+      <div class="frag"><b>$200 M</b><span>costó la película Titanic</span></div>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Fuente: CD Projekt (1 200 M de zlotys, 2021)</span></div>
+</section>
+
+<!-- · Los 3 retrasos -->
+<section class="slide cp delays">
+  <div class="top"><span>Los retrasos</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="title t-m">No está listo. <span class="y">Otra vez.</span></div>
+    <div class="dates">
+      <div class="date x"><div class="k">Fecha original</div><b>16 abr<small>2020</small></b><div class="why">La prometida desde 2019</div></div>
+      <div class="date x frag"><div class="k">1.er retraso</div><b>17 sep<small>2020</small></b><div class="why">Anunciado en enero 2020</div></div>
+      <div class="date x frag"><div class="k">2.º retraso</div><b>19 nov<small>2020</small></b><div class="why">Anunciado en junio 2020</div></div>
+      <div class="date ok frag"><div class="k">3.er retraso → sale</div><b>10 dic<small>2020</small></b><div class="why">Anunciado en octubre 2020, cuando ya estaba “terminado”. Al equipo casi ni le avisan.</div></div>
+    </div>
+    <div class="ybar frag">Tras el 3.er retraso, los desarrolladores reciben amenazas de muerte.</div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Fuente: CD Projekt · Bloomberg</span></div>
+</section>
+
+<!-- · El crunch -->
+<section class="slide cp crunch">
+  <div class="top"><span>El crunch</span><span class="cnt"></span></div>
+  <div class="body">
+    <div>
+      <div class="kicker">Crunch = jornadas extremas antes de entregar</div>
+      <div class="title t-m">2019: “No habrá crunch obligatorio”. <span class="y">2020: sí lo hubo.</span></div>
+    </div>
+    <div class="big4">
+      <div class="frag"><b>6<small>días</small></b><span>por semana, obligatorio desde septiembre 2020 (correo interno filtrado).</span></div>
+      <div class="frag"><b>13<small>h</small></b><span>al día trabajaba un programador de audio, 5 días seguidos.</span></div>
+      <div class="frag"><b>65<small>h</small></b><span>a la semana. Lo normal son 40.</span></div>
+      <div class="frag"><b>2022</b><span>El año en que el equipo creía que el juego iba a estar listo de verdad.</span></div>
+    </div>
+    <div class="quote frag">Más de una docena de trabajadores dijeron a Bloomberg que se sentían <b>presionados</b> por sus jefes y compañeros a hacer horas extra, aunque “no eran obligatorias”.</div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Fuente: Bloomberg · Jason Schreier · 2020–2021</span></div>
+</section>
+
+<!-- · Lanzamiento -->
+<section class="slide cp launch">
+  <div class="top"><span>10 de diciembre de 2020</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="l">
+      <div class="kicker">El lanzamiento</div>
+      <div class="title t-l">Récord…<br><span class="y">y desastre</span></div>
+      <div class="rec">
+        <div><b>8 M</b><span>de preventas</span></div>
+        <div><b>1 M</b><span>jugadores a la vez en Steam</span></div>
+        <div><b>13 M</b><span>copias vendidas en 10 días</span></div>
+      </div>
+    </div>
+    <figure class="frag">
+      <div class="k2">Nota de IGN en PS4 y Xbox One: 4 / 10</div>
+      <img src="assets/cp/ign-4.jpg" alt="Reseña de IGN: Cyberpunk 2077 en PS4 y Xbox One, 4 de 10" style="object-fit:contain;background:#000">
+      <figcaption><span>“Mejor no lo jueguen hasta que lo arreglen” — IGN</span></figcaption>
+    </figure>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Fuente: CD Projekt · IGN</span></div>
+</section>
+
+<!-- · Lo que prometía la demo -->
+<section class="slide cp demo">
+  <div class="top"><span>La demo de 2018</span><span class="cnt"></span></div>
+  <div class="body">
+    <figure>
+      <img src="assets/cp/trailer.jpg" alt="Persecución policial en un tráiler de Cyberpunk 2077">
+      <figcaption>Lo que mostraban los tráileres</figcaption>
+    </figure>
+    <div class="r">
+      <div class="title t-m">Lo que prometieron…<br><span class="y">y no estaba</span></div>
+      <ul class="prom">
+        <li class="frag"><b>Persecuciones en auto</b><span>No había. Llegaron en 2023.</span></li>
+        <li class="frag"><b>Policía inteligente</b><span>Aparecía de la nada, justo detrás de ti.</span></li>
+        <li class="frag"><b>Metro funcionando</b><span>Solo decorado. Llegó en 2023.</span></li>
+        <li class="frag"><b>Correr por las paredes</b><span>Eliminado.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Fuente: Bloomberg · CD Projekt · Imagen: CD Projekt Red</span></div>
+</section>
+
+<!-- · Expectativa vs realidad -->
+<section class="slide lol">
+  <div class="top"><span>Internet no perdonó</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="display h-l">Lo que esperábamos <span class="red">vs. lo que llegó</span></div>
+    <div class="memes">
+      <figure class="frag"><img src="assets/cp/meme-yoda.jpg" alt="Meme: Baby Yoda (PC) vs. muñeco feo (PS4 y Xbox One)"></figure>
+      <figure class="frag"><img src="assets/cp/meme-tekken.jpg" alt="Meme: Kazuya de Tekken moderno (PC) vs. Tekken de PlayStation 1 (PS4)"></figure>
+      <figure class="frag"><img src="assets/cp/meme-gato.jpg" alt="Meme: Aquaman (PC) vs. gato mojado (PS4 y Xbox)"></figure>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Memes vía Know Your Meme · PCMag</span></div>
+</section>
+
+<!-- · Bugs -->
+<section class="slide lol bugs">
+  <div class="top"><span>Los bugs que se volvieron memes</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="display h-l">Night City <span class="red">en su máximo esplendor</span></div>
+    <div class="grid-b">
+      <figure class="tall frag"><img src="assets/cp/bug-tpose.jpg" alt="NPC en T-pose en la calle"><figcaption>La T-pose: “¿me abrazas?”</figcaption></figure>
+      <figure class="frag"><img src="assets/cp/bug-johnny.jpg" alt="Johnny Silverhand en PC vs. en PS4"><figcaption>Johnny: PC vs. PS4</figcaption></figure>
+      <figure class="frag"><img src="assets/cp/bug-npcs.jpg" alt="NPCs amontonados unos encima de otros"><figcaption>NPCs apilados</figcaption></figure>
+      <figure class="frag"><img src="assets/cp/bug-almohada.jpg" alt="Personaje con la cabeza atravesando una almohada"><figcaption>Cabeza-almohada</figcaption></figure>
+      <figure class="frag"><img src="assets/cp/meme-keanu.jpg" alt="Meme: Keanu Reeves versión barata" style="object-fit:contain;background:#111"><figcaption>“Keanu” en PS4</figcaption></figure>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Capturas de jugadores vía TheGamer · Know Your Meme</span></div>
+</section>
+
+<!-- · El desastre -->
+<section class="slide cp dis">
+  <div class="bgimg"><img src="assets/cp/ss5.jpg" alt="Choque de autos en Cyberpunk 2077" style="object-position:right center"></div>
+  <div class="top"><span>Todo lo que vino después</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="title t-l">El <span class="y">desastre</span></div>
+    <div class="dlist">
+      <div class="frag"><b>Sony lo <i>saca</i> de su tienda</b><span>17 dic 2020 · 7 días después · 6 meses fuera</span></div>
+      <div class="frag"><b><i>Reembolsos</i> masivos</b><span>Sony, Microsoft, y hasta GameStop con juegos abiertos</span></div>
+      <div class="frag"><b>Acción: <i>–40 %</i></b><span>En 2 semanas · ~5 000 millones de dólares menos</span></div>
+      <div class="frag"><b><i>Demandas</i> de inversionistas</b><span>Terminan pagando 1,85 millones de dólares (2023)</span></div>
+      <div class="frag"><b>Investigación del <i>gobierno</i></b><span>La oficina de consumidores de Polonia, enero 2021</span></div>
+      <div class="frag"><b><i>Disculpa</i> pública</b><span>13 ene 2021 · co-CEO: “subestimamos el riesgo”</span></div>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Fuente: Bloomberg · CD Projekt · Wikipedia</span></div>
+</section>
+
+<!-- · Recuperación -->
+<section class="slide cp rev">
+  <div class="bgimg"><img src="assets/cp/pl1.jpg" alt="Phantom Liberty" style="object-position:right center"></div>
+  <div class="top"><span>La recuperación</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="title t-l">3 años<br><span class="c">arreglándolo</span></div>
+    <div class="tl6">
+      <div class="frag"><em>2021</em><b>Parches 1.1 y 1.2</b><span>Cientos de bugs corregidos. Vuelve a la PS Store en junio.</span></div>
+      <div class="frag"><em>may 2021</em><b>Nuevo director</b><span>Cambia la dirección del juego: Gabriel Amatangelo (ex-BioWare) toma el mando.</span></div>
+      <div class="frag"><em>2022</em><b>Anime Edgerunners</b><span>Netflix, septiembre. La gente vuelve a jugar: ventas +18 %.</span></div>
+      <div class="frag top3"><em>sep 2023</em><b>2.0 + Phantom Liberty</b><span>Rehacen sistemas enteros. Recién ahí es el juego prometido.</span></div>
+      <div class="frag top3"><em>hoy</em><b>+40 M copias</b><span>Reseñas “muy positivas”. Recuperado… 3 años tarde.</span></div>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Fuente: CD Projekt · Game Informer · Imagen: CD Projekt Red</span></div>
+</section>
+
+<!-- · Moraleja -->
+<section class="slide cp moral">
+  <div class="top"><span>¿Qué salió mal?</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="years">
+      <div><span>Lo lanzaron</span><b>2020</b></div>
+      <div class="frag"><span>El equipo decía</span><b>2022</b></div>
+      <div class="frag hot"><span>Estuvo bien</span><b>2023</b></div>
+    </div>
+    <div class="ybar frag">El crunch no adelantó el juego. Lo retrasó.</div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Ritmo sostenible</span></div>
+</section>
+
+<!-- · El principio -->
+<section class="slide p8">
+  <div class="top"><span>El Manifiesto Ágil · 2001</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="kicker">Lo que no respetaron</div>
+    <div class="txt">
+      <div class="num">8</div>
+      <div>
+        <div class="t">Los procesos ágiles promueven el <mark>desarrollo sostenible</mark>. Promotores, desarrolladores y usuarios debemos poder mantener un <mark>ritmo constante</mark> de forma indefinida.</div>
+        <div class="en">Agile processes promote sustainable development. The sponsors, developers, and users should be able to maintain a constant pace indefinitely.</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>agilemanifesto.org</span></div>
+</section>
+
+<!-- · Datos del principio -->
+<section class="slide dat">
+  <div class="top"><span>El principio en 3 ideas</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="display h-l">Un maratón, <span class="red">no un sprint.</span></div>
+    <div class="three">
+      <div class="frag"><b>= ritmo</b><p>Trabajar a un ritmo que se pueda aguantar <b>siempre</b>, no solo una semana.</p><span>“Forma indefinida”</span></div>
+      <div class="frag"><b>2 sem.</b><p>Nunca horas extra <b>dos semanas seguidas</b>. Si pasa, el plan está mal.</p><span>Kent Beck · Extreme Programming · 1999</span></div>
+      <div class="frag"><b>70 = 55</b><p>70 horas a la semana producen <b>lo mismo</b> que 55. Más horas ≠ más trabajo.</p><span>J. Pencavel · Stanford · 2014</span></div>
+    </div>
+    <div class="final frag">No se trata de correr más rápido. Se trata de <em>poder seguir corriendo</em>.</div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Gracias</span></div>
+</section>
+
+<!-- · Dinámica -->
+<section class="slide dyn">
+  <div class="top"><span>Dinámica</span><span class="cnt"></span></div>
+  <div class="body">
+    <div class="display h-l">Crunch vs. <span class="red">ritmo constante</span></div>
+    <div class="rules">
+      <div class="rule a"><div class="ttl">Equipo A · Crunch</div><p>Ronda 1: <b>45 s</b>.<br>Rondas 2 y 3: <b>otra mano</b>.</p></div>
+      <div class="rule"><div class="ttl">Equipo B · Constante</div><p>3 rondas de <b>30 s</b>.<br>Mano normal.</p></div>
+      <div class="timer">
+        <div class="clk" id="clock">0:30</div>
+        <button data-sec="30">30 s</button><button data-sec="45">45 s</button>
+      </div>
+    </div>
+    <div class="lead">Escriban <b>ÁGIL</b> todas las veces que puedan. Lo que no se lee, resta.</div>
+  </div>
+  <div class="bottom"><span>Manifiesto Ágil · Principio 8</span><span>Ritmo sostenible</span></div>
+</section>
+
+<div id="hint">← → avanzar · F pantalla completa</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const hint = document.getElementById('hint');
+  let i = Math.min(Math.max(parseInt(location.hash.slice(1)) || 1, 1), slides.length) - 1;
+
+  slides.forEach((s, k) => { const c = s.querySelector('.cnt'); if (c) c.innerHTML = '<b>' + String(k + 1).padStart(2, '0') + '</b> / ' + slides.length; });
+
+  const frags = s => [...s.querySelectorAll('.frag')];
+  function show(n, fromEnd = false) {
+    i = Math.min(Math.max(n, 0), slides.length - 1);
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    frags(slides[i]).forEach(f => f.classList.toggle('on', fromEnd));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function next() {
+    const f = frags(slides[i]).find(x => !x.classList.contains('on'));
+    if (f) f.classList.add('on'); else if (i < slides.length - 1) show(i + 1);
+  }
+  function prev() {
+    const on = frags(slides[i]).filter(x => x.classList.contains('on'));
+    if (on.length) on[on.length - 1].classList.remove('on'); else if (i > 0) show(i - 1, true);
+  }
+
+  // Cronómetro de la dinámica: sus botones no deben avanzar la lámina
+  const isUI = el => el.closest('button');
+  const clock = document.getElementById('clock');
+  let tick = null;
+  const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  document.querySelectorAll('.timer button').forEach(b => b.addEventListener('click', () => {
+    clearInterval(tick);
+    let s = +b.dataset.sec;
+    clock.textContent = fmt(s); clock.classList.add('run');
+    tick = setInterval(() => {
+      s--; clock.textContent = fmt(s);
+      if (s <= 0) { clearInterval(tick); clock.classList.remove('run'); clock.textContent = '¡YA!'; }
+    }, 1000);
+  }));
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', 'ArrowDown', ' ', 'PageDown', 'Enter'].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1, true);
+    else if (e.key.toLowerCase() === 'f') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+  document.addEventListener('click', e => { if (isUI(e.target)) return; e.clientX > innerWidth / 3 ? next() : prev(); });
+
+  let x0 = null;
+  document.addEventListener('touchstart', e => x0 = e.touches[0].clientX, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (x0 === null || isUI(e.target)) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 40) dx < 0 ? next() : prev();
+    x0 = null;
+  });
+
+  setTimeout(() => hint.style.opacity = 0, 4000);
+  show(i, location.search.includes('all'));
+</script>
+</body>
+</html>
